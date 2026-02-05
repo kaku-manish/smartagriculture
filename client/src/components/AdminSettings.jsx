@@ -1,3 +1,4 @@
+import API_URL from '@/api/config';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
@@ -21,8 +22,8 @@ const AdminSettings = () => {
         setLoading(true);
         try {
             const [medsRes, diseasesRes] = await Promise.all([
-                axios.get('http://localhost:3000/cost/grouped-medicines'),
-                axios.get('http://localhost:3000/cost/diseases')
+                axios.get(`${API_URL}/cost/grouped-medicines`),
+                axios.get(`${API_URL}/cost/diseases`)
             ]);
 
             setGroupedMedicines(medsRes.data);
@@ -74,7 +75,7 @@ const AdminSettings = () => {
     const handleAddMedicine = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:3000/cost/medicine', newMedicine);
+            await axios.post(`${API_URL}/cost/medicine`, newMedicine);
             setMessage({ type: 'success', text: 'New medicine added successfully!' });
             const oldDisease = newMedicine.disease_name;
             setNewMedicine({ medicine_name: '', brand_name: '', unit_price: '', unit: 'liter', disease_name: oldDisease });

@@ -1,3 +1,4 @@
+import API_URL from '@/api/config';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -43,7 +44,7 @@ const AdminReportGenerator = ({ farmer, onBack, onSuccess, analysisResult }) => 
 
         setSending(true);
         try {
-            await axios.post('http://localhost:3000/reports/create', {
+            await axios.post(`${API_URL}/reports/create`, {
                 farm_id: farmData.farm.farm_id,
                 title: `Full Field Health Report - ${new Date().toLocaleDateString()}`,
                 type: 'pdf',

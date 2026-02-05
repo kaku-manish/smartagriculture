@@ -1,3 +1,4 @@
+import API_URL from '@/api/config';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
@@ -26,7 +27,7 @@ const AdminOrders = () => {
 
     const fetchOrders = async () => {
         try {
-            const res = await axios.get('http://localhost:3000/orders/all');
+            const res = await axios.get(`${API_URL}/orders/all`);
             setOrders(res.data);
             setLoading(false);
         } catch (err) {

@@ -1,3 +1,4 @@
+import API_URL from '@/api/config';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -45,7 +46,7 @@ const ActionPlan = ({ recommendation, setActiveTab, resetAnalysis }) => {
         // So we just need the filename usually, or path relative to upload dir.
         // If full path is saved: "c:/.../server/uploads/file.jpg"
         // We need to extract just "uploads/file.jpg" or "file.jpg" depending on static serving.
-        // Let's assume standard behavior: we need "http://localhost:3000/uploads/<filename>"
+        // Let's assume standard behavior: we need `${API_URL}/uploads/<filename>`
 
         const filename = cleanPath.split('/').pop();
         return `http://localhost:3000/uploads/${filename}`;

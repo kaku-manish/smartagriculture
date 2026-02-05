@@ -1,3 +1,4 @@
+import API_URL from '@/api/config';
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
@@ -99,7 +100,7 @@ const EditProfileModal = ({ isOpen, onClose, user, farmData, onUpdate }) => {
         setError(null);
 
         try {
-            await axios.put('http://localhost:3000/auth/update-profile', {
+            await axios.put(`${API_URL}/auth/update-profile`, {
                 userId: user.id,
                 ...formData
             });

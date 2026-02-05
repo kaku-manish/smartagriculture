@@ -1,3 +1,4 @@
+import API_URL from '@/api/config';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';

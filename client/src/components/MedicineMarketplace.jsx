@@ -1,3 +1,4 @@
+import API_URL from '@/api/config';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -80,7 +81,7 @@ const MedicineMarketplace = ({ farmId, user }) => {
 
     const fetchMyOrders = async () => {
         try {
-            const res = await axios.get('http://localhost:3000/orders/my-orders');
+            const res = await axios.get(`${API_URL}/orders/my-orders`);
             setOrders(res.data);
         } catch (err) {
             console.error("Failed to fetch orders:", err);
@@ -116,7 +117,7 @@ const MedicineMarketplace = ({ farmId, user }) => {
         }
 
         try {
-            await axios.post('http://localhost:3000/orders/request', {
+            await axios.post(`${API_URL}/orders/request`, {
                 farm_id: farmId,
                 user_id: user.id, // Fallback for transition
                 medicine_name: med.medicine_name,

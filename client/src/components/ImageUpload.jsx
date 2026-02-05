@@ -1,3 +1,4 @@
+import API_URL from '@/api/config';
 import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
@@ -118,7 +119,7 @@ const ImageUpload = ({ onAnalysisComplete, farmId, defaultMode = 'upload', allow
         formData.append('farm_id', farmId);
 
         try {
-            const res = await axios.post('http://localhost:3000/drone/analysis', formData, {
+            const res = await axios.post(`${API_URL}/drone/analysis`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

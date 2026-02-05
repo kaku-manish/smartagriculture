@@ -1,3 +1,4 @@
+import API_URL from '@/api/config';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import ImageUpload from './ImageUpload';
@@ -16,7 +17,7 @@ const AdminDroneReportControl = () => {
 
     const fetchFarmers = async () => {
         try {
-            const res = await axios.get('http://localhost:3000/admin/farmers');
+            const res = await axios.get(`${API_URL}/admin/farmers`);
             setFarmers(res.data);
             setLoading(false);
         } catch (err) {

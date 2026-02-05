@@ -1,3 +1,4 @@
+import API_URL from '@/api/config';
 import { useState, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
@@ -99,7 +100,7 @@ const Signup = () => {
         }
 
         try {
-            await axios.post('http://localhost:3000/auth/register', formData);
+            await axios.post(`${API_URL}/auth/register`, formData);
             navigate('/login');
         } catch (err) {
             setError(err.response?.data?.error || 'Registration failed. Please try again.');

@@ -21,7 +21,7 @@ import {
     AlertTriangle
 } from 'lucide-react';
 import bgImage from '../assets/paddy_login_bg.png';
-import LanguageSelector from '../components/LanguageSelector';
+import API_URL from '@/api/config';
 
 const Login = () => {
     const [formData, setFormData] = useState({ username: '', password: '' });
@@ -43,7 +43,7 @@ const Login = () => {
             // or use real backend if available.
             // For now, keeping original logic structure but adding a fallback for demo feeling if needed.
 
-            const res = await axios.post('http://localhost:3000/auth/login', {
+            const res = await axios.post(`${API_URL}/auth/login`, {
                 ...formData
             });
 
