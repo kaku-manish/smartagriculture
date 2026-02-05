@@ -10,18 +10,18 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory to /app
-WORKDIR /app/server
+WORKDIR /app
 
 # Copy server package files and install Node dependencies
-COPY server/package*.json ./
-RUN npm install
+COPY server/package*.json ./server/
+RUN cd server && npm install
 
 # Copy Python requirements and install Python dependencies
-COPY requirements.txt ../
-RUN pip3 install --no-cache-dir -r ../requirements.txt
+COPY requirements.txt ./
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code
-COPY . /app
+COPY . .
 
 # Expose the API port
 EXPOSE 3000
@@ -30,5 +30,5 @@ EXPOSE 3000
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Start the server
-CMD ["node", "index.js"]
+# Start the server (pointing to the correct directory)
+CMD ["node", "server/index.js"]
