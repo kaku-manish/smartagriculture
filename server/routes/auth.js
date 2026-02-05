@@ -4,7 +4,7 @@ const db = require('../database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const SECRET_KEY = 'paddy_secret_key';
+const SECRET_KEY = process.env.JWT_SECRET || 'paddy_secret_key';
 
 // REGISTER
 router.post('/register', async (req, res) => {
@@ -24,11 +24,13 @@ router.post('/register', async (req, res) => {
 
         db.run(sql, [username, hashedPassword, role, full_name, email, phone, gender], function (err) {
             if (err) {
-                if (err.message.includes('UNIQUE constraint failed')) {
+                if (err.message?.includes('UNIQUE constraint failed') || err.message?.includes('duplicate key value')) {
                     return res.status(400).json({ error: 'Username already exists' });
                 }
                 return res.status(500).json({ error: 'Database error' });
             }
+
+            // For Supabase shim, the ID is provided in the result data or via this.lastID if shimmed correctly
             const userId = this.lastID;
 
             // Create a default farm for the new user

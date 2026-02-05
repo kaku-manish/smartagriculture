@@ -1,292 +1,198 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-const fs = require('fs');
+const { createClient } = require('@supabase/supabase-js');
 
-// Connect to SQLite database
-const dbPath = path.resolve(__dirname, 'agriculture.db');
-// DELETE DB TO RESET SCHEMA for Dev
-// if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath); 
+// Supabase Configuration
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('Error opening database ' + dbPath + ': ' + err.message);
-    } else {
-        console.log('Connected to the SQLite database.');
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/**
+ * Supabase Adapter for SQLite-style calls
+ * This allows us to migrate with minimal changes to route files.
+ */
+const db = {
+    // Mimic db.get (return first row)
+    get: async (sql, params, callback) => {
+        try {
+            const result = await processQuery(sql, params);
+            if (callback) callback(null, result && result.length > 0 ? result[0] : null);
+        } catch (err) {
+            if (callback) callback(err);
+        }
+    },
+
+    // Mimic db.all (return all rows)
+    all: async (sql, params, callback) => {
+        try {
+            const result = await processQuery(sql, params);
+            if (callback) callback(null, result);
+        } catch (err) {
+            if (callback) callback(err);
+        }
+    },
+
+    // Mimic db.run (insert/update/delete)
+    run: async (sql, params, callback) => {
+        try {
+            const result = await processQuery(sql, params, true);
+            if (callback) {
+                // Return whichever ID column is present (id, user_id, farm_id)
+                const lastID = result?.id || result?.user_id || result?.farm_id || null;
+                const context = { lastID, changes: 1 };
+                callback.call(context, null);
+            }
+        } catch (err) {
+            if (callback) callback(err);
+        }
+    },
+
+    // Not used much in the current routes, but just in case
+    serialize: (fn) => fn(),
+    prepare: (sql) => ({
+        run: (params, cb) => db.run(sql, params, cb),
+        finalize: () => { }
+    })
+};
+
+/**
+ * A very basic SQL to Supabase translator
+ * Handles simple SELECT, INSERT, UPDATE
+ */
+async function processQuery(sql, params = [], isMutation = false) {
+    const cleanSql = sql.trim().replace(/\s+/g, ' ');
+
+    // 1. Handle SELECT
+    if (cleanSql.toUpperCase().startsWith('SELECT')) {
+        const tableMatch = cleanSql.match(/FROM\s+(\w+)/i);
+        if (!tableMatch) throw new Error("Could not parse table name from SQL");
+        const table = tableMatch[1];
+
+        // Parse columns
+        let colPart = cleanSql.match(/SELECT\s+(.*?)\s+FROM/i)[1];
+        let selectCols = (colPart.trim() === '*' || colPart.includes(',')) ? '*' : colPart.trim();
+
+        // Check for common JOINs used in the app
+        if (cleanSql.toLowerCase().includes('join farms')) {
+            // Map the SQL join to Supabase's hierarchical select
+            // Supports both JOIN (inner) and LEFT JOIN patterns
+            selectCols = '*, farms(*)';
+        }
+
+        let query = supabase.from(table).select(selectCols);
+
+        // Handle WHERE (simple and case-insensitive)
+        const whereMatch = cleanSql.match(/WHERE\s+(.*?)\s*[=]\s*\?/i) || cleanSql.match(/WHERE\s+LOWER\((.*?)\)\s*=\s*LOWER\(\?\)/i);
+        if (whereMatch && params.length > 0) {
+            const colName = whereMatch[1].trim();
+            // If it was a LOWER() check, use ilike
+            if (cleanSql.toLowerCase().includes('lower(')) {
+                query = query.ilike(colName, params[0]);
+            } else {
+                query = query.eq(colName, params[0]);
+            }
+        }
+
+        // Handle ORDER BY
+        const orderMatch = cleanSql.match(/ORDER BY\s+(\w+)\s+(DESC|ASC)/i);
+        if (orderMatch) {
+            query = query.order(orderMatch[1], { ascending: orderMatch[2].toUpperCase() === 'ASC' });
+        }
+
+        // Handle LIMIT
+        const limitMatch = cleanSql.match(/LIMIT\s+(\d+)/i);
+        if (limitMatch) {
+            query = query.limit(parseInt(limitMatch[1]));
+        }
+
+        const { data, error } = await query;
+        if (error) {
+            console.error("Supabase SELECT Error:", error);
+            throw error;
+        }
+
+        // Flatten joined results if any (e.g., if farms data is nested)
+        const flattenedData = data.map(row => {
+            const newRow = { ...row };
+            // Supabase returns related table under its own key
+            const farmData = Array.isArray(row.farms) ? row.farms[0] : row.farms;
+
+            if (farmData) {
+                // Merge common farm fields into the top level for existing routes
+                newRow.farmer_name = farmData.farmer_name;
+                newRow.location = farmData.location;
+                newRow.farm_id = farmData.farm_id;
+                newRow.soil_type = farmData.soil_type;
+                newRow.field_size = farmData.field_size;
+                newRow.current_crop = farmData.current_crop;
+                delete newRow.farms;
+            }
+            return newRow;
+        });
+
+        return flattenedData;
     }
-});
 
-db.serialize(() => {
-    // 1. Farms Table
-    db.run(`CREATE TABLE IF NOT EXISTS farms (
-        farm_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        farmer_name TEXT,
-        location TEXT,
-        soil_type TEXT,
-        field_size REAL,
-        current_crop TEXT,
-        sowing_date DATE,
-        FOREIGN KEY(user_id) REFERENCES users(id)
-    )`);
+    // 2. Handle INSERT
+    if (cleanSql.toUpperCase().startsWith('INSERT INTO')) {
+        const table = cleanSql.match(/INSERT INTO\s+(\w+)/i)?.[1];
+        const colsPart = cleanSql.match(/\((.*?)\)/);
+        if (!table || !colsPart) throw new Error("Could not parse INSERT statement");
 
-    // 2. IoT Data Table
-    db.run(`CREATE TABLE IF NOT EXISTS iot_readings (
-        reading_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        farm_id INTEGER,
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-        soil_moisture REAL,
-        water_level REAL,
-        temperature REAL,
-        humidity REAL,
-        FOREIGN KEY(farm_id) REFERENCES farms(farm_id)
-    )`);
+        const columns = colsPart[1].split(',').map(c => c.trim());
+        const row = {};
+        columns.forEach((col, idx) => {
+            row[col] = params[idx];
+        });
 
-    // 3. Drone/Disease Analysis
-    // Added: confidence, annotated_image_reference
-    db.run(`CREATE TABLE IF NOT EXISTS drone_analysis (
-        analysis_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        farm_id INTEGER,
-        disease_type TEXT,
-        severity TEXT,
-        image_reference TEXT,
-        confidence REAL,
-        annotated_image_reference TEXT,
-        analysis_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(farm_id) REFERENCES farms(farm_id)
-    )`);
+        const { data, error } = await supabase.from(table).insert(row).select();
+        if (error) {
+            console.error("Supabase INSERT Error:", error);
+            throw error;
+        }
+        return data ? data[0] : null;
+    }
 
-    // 4. Recommendations Table
-    db.run(`CREATE TABLE IF NOT EXISTS recommendations (
-        rec_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        farm_id INTEGER,
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-        crop_suggestion TEXT,
-        water_advice TEXT,
-        disease_detected TEXT,
-        medicine_suggestion TEXT,
-        dosage TEXT,
-        FOREIGN KEY(farm_id) REFERENCES farms(farm_id)
-    )`);
+    // 3. Handle UPDATE
+    if (cleanSql.toUpperCase().startsWith('UPDATE')) {
+        const table = cleanSql.match(/UPDATE\s+(\w+)/i)?.[1];
+        const setMatch = cleanSql.match(/SET\s+(.*?)\s+WHERE/i);
+        const whereMatch = cleanSql.match(/WHERE\s+(.*?)\s*=\s*\?/i);
 
-    // 5. Knowledge Base: Crop-Soil Mapping
-    db.run(`CREATE TABLE IF NOT EXISTS kb_crops (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        soil_type TEXT,
-        water_availability TEXT,
-        recommended_crop TEXT
-    )`);
+        if (!table || !setMatch || !whereMatch) throw new Error("Could not parse UPDATE statement");
 
-    // 6. Knowledge Base: Disease-Medicine Mapping
-    // Added: medicine_secondary, preventive_measures, timeline
-    db.run(`CREATE TABLE IF NOT EXISTS kb_diseases (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        disease_name TEXT,
-        medicine TEXT,
-        medicine_secondary TEXT,
-        dosage TEXT,
-        preventive_measures TEXT,
-        timeline TEXT
-    )`);
+        const setClause = setMatch[1];
+        // Split by comma but be careful with functions (though we don't use them in SET yet)
+        const assignmentParts = setClause.split(',');
+        const updateData = {};
 
-    // 7. Users Table (Authentication)
-    db.run(`CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password_hash TEXT NOT NULL,
-        role TEXT NOT NULL CHECK(role IN ('admin', 'farmer')),
-        full_name TEXT,
-        email TEXT,
-        phone TEXT,
-        gender TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`);
+        assignmentParts.forEach((part, idx) => {
+            const col = part.split('=')[0].trim();
+            updateData[col] = params[idx];
+        });
 
-    // 8. Medicine Prices Table (for Cost Estimation)
-    db.run(`CREATE TABLE IF NOT EXISTS medicine_prices (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        medicine_name TEXT NOT NULL,
-        brand_name TEXT,
-        unit_price REAL NOT NULL,
-        unit TEXT DEFAULT 'liter',
-        disease_name TEXT,
-        available BOOLEAN DEFAULT 1,
-        last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`);
+        const whereCol = whereMatch[1].trim();
+        const whereVal = params[params.length - 1];
 
-    // 9. Orders Table (Purchase Requests)
-    db.run(`CREATE TABLE IF NOT EXISTS orders (
-        order_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        farm_id INTEGER,
-        medicine_name TEXT,
-        quantity REAL,
-        total_price REAL,
-        customer_name TEXT,
-        phone_number TEXT,
-        address TEXT,
-        state TEXT,
-        district TEXT,
-        pincode TEXT,
-        payment_method TEXT,
-        status TEXT DEFAULT 'Pending',
-        order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(user_id) REFERENCES users(id),
-        FOREIGN KEY(farm_id) REFERENCES farms(farm_id)
-    )`);
+        const { data, error } = await supabase.from(table).update(updateData).eq(whereCol, whereVal).select();
+        if (error) {
+            console.error("Supabase UPDATE Error:", error);
+            throw error;
+        }
+        return data;
+    }
 
-    // Add missing columns to existing table
-    ['customer_name', 'phone_number', 'address', 'state', 'district', 'pincode', 'payment_method'].forEach(col => {
-        db.run(`ALTER TABLE orders ADD COLUMN ${col} TEXT`, (err) => { /* ignore if already exists */ });
-    });
+    // 4. Handle DELETE (Simple)
+    if (cleanSql.toUpperCase().startsWith('DELETE')) {
+        const table = cleanSql.match(/FROM\s+(\w+)/i)?.[1];
+        const whereMatch = cleanSql.match(/WHERE\s+(.*?)\s*=\s*\?/i);
+        if (!table || !whereMatch) throw new Error("Could not parse DELETE statement");
 
-    db.run(`ALTER TABLE medicine_prices ADD COLUMN disease_name TEXT`, (err) => { /* ignore if already exists */ });
+        const { data, error } = await supabase.from(table).delete().eq(whereMatch[1].trim(), params[0]);
+        if (error) throw error;
+        return data;
+    }
 
-    // Seed Initial Knowledge Base Data
-    const stmtCrops = db.prepare("INSERT OR IGNORE INTO kb_crops (soil_type, water_availability, recommended_crop) VALUES (?, ?, ?)");
-    stmtCrops.run("fertile", "high", "BPT 5204 (Samba Masuri)");
-    stmtCrops.run("fertile", "medium", "MTU 1010");
-    stmtCrops.run("non-fertile", "low", "Sahbhagi Dhan");
-    stmtCrops.finalize();
-
-    const stmtDiseases = db.prepare("INSERT OR IGNORE INTO kb_diseases (disease_name, medicine, medicine_secondary, dosage, preventive_measures, timeline) VALUES (?, ?, ?, ?, ?, ?)");
-
-    // Bacterial Leaf Blight
-    stmtDiseases.run(
-        "Bacterial Leaf Blight",
-        "Copper Oxychloride",
-        "Streptocycline",
-        "500g/acre",
-        "Improve drainage, avoid nitrogen overdose",
-        "Spray immediately, repeat after 10 days"
-    );
-    // Bacterial Leaf Blight (Alias)
-    stmtDiseases.run(
-        "Bacterial Leaf Blight (BLB)",
-        "Copper Oxychloride",
-        "Streptocycline",
-        "500g/acre",
-        "Improve drainage, avoid nitrogen overdose",
-        "Spray immediately, repeat after 10 days"
-    );
-    stmtDiseases.run(
-        "bacterial_leaf_blight",
-        "Copper Oxychloride",
-        "Streptocycline",
-        "500g/acre",
-        "Improve drainage, avoid nitrogen overdose",
-        "Spray immediately, repeat after 10 days"
-    );
-
-    // Brown Spot
-    stmtDiseases.run(
-        "Brown Spot",
-        "Mancozeb",
-        "Propiconazole",
-        "2.5g/liter",
-        "Use potassium fertilizer, clean field boundaries",
-        "Spray at tillering stage, repeat every 15 days"
-    );
-    stmtDiseases.run(
-        "brown_spot",
-        "Mancozeb",
-        "Propiconazole",
-        "2.5g/liter",
-        "Use potassium fertilizer, clean field boundaries",
-        "Spray at tillering stage, repeat every 15 days"
-    );
-
-    // Blast
-    stmtDiseases.run(
-        "Blast",
-        "Tricyclazole 75 WP",
-        "Isoprothiolane",
-        "0.6g/liter",
-        "Use resistant varieties, remove infected straw",
-        "Spray at early appearance, repeat if rain occurs"
-    );
-    stmtDiseases.run(
-        "blast",
-        "Tricyclazole 75 WP",
-        "Isoprothiolane",
-        "0.6g/liter",
-        "Use resistant varieties, remove infected straw",
-        "Spray at early appearance, repeat if rain occurs"
-    );
-
-    // Sheath Blight
-    stmtDiseases.run(
-        "Sheath Blight",
-        "Hexaconazole",
-        "Validamycin",
-        "2ml/liter",
-        "Reduce seeding rate, avoid excess urea",
-        "Spray when lesions appear, check after 7 days"
-    );
-
-    // Tungro
-    stmtDiseases.run(
-        "Tungro",
-        "Imidacloprid (for vector)",
-        "Thiamethoxam",
-        "0.5ml/liter",
-        "Control Green Leaf Hopper vector, destroy infected plants",
-        "Monitor vector population, spray weekly"
-    );
-
-    // Hispa
-    stmtDiseases.run(
-        "hispa",
-        "Chlorpyriphos 20% EC",
-        "Quinalphos 25 EC",
-        "2.5ml/L",
-        "Clip leaf tips of seedlings, removing eggs",
-        "Spray when damage is noticed"
-    );
-
-    // Dead Heart
-    stmtDiseases.run(
-        "dead_heart",
-        "Chlorantraniliprole 18.5% SC",
-        "Cartap Hydrochloride",
-        "150ml/ha",
-        "Install pheromone traps",
-        "Apply granules at 15 DAT"
-    );
-
-    // Downy Mildew
-    stmtDiseases.run(
-        "downy_mildew",
-        "Metalaxyl + Mancozeb",
-        "Fosetyl-Al",
-        "2.5g/L",
-        "Remove infected plants",
-        "Spray preventively in humid weather"
-    );
-
-    stmtDiseases.finalize();
-
-    // Seed Medicine Prices
-    const stmtPrices = db.prepare("INSERT OR IGNORE INTO medicine_prices (medicine_name, brand_name, unit_price, unit) VALUES (?, ?, ?, ?)");
-
-    // Prices in INR per liter/kg
-    stmtPrices.run("Copper Oxychloride", "Blitox", 450, "kg");
-    stmtPrices.run("Streptocycline", "Plantomycin", 1200, "kg");
-    stmtPrices.run("Mancozeb", "Dithane M-45", 380, "kg");
-    stmtPrices.run("Propiconazole", "Tilt", 1800, "liter");
-    stmtPrices.run("Tricyclazole 75 WP", "Beam", 1550, "kg");
-    stmtPrices.run("Isoprothiolane", "Fujione", 1650, "liter");
-    stmtPrices.run("Hexaconazole", "Contaf", 1900, "liter");
-    stmtPrices.run("Validamycin", "Sheathmar", 2200, "liter");
-    stmtPrices.run("Imidacloprid (for vector)", "Confidor", 850, "liter");
-    stmtPrices.run("Thiamethoxam", "Actara", 1100, "kg");
-    stmtPrices.run("Chlorpyriphos 20% EC", "Dursban", 520, "liter");
-    stmtPrices.run("Quinalphos 25 EC", "Ekalux", 480, "liter");
-    stmtPrices.run("Chlorantraniliprole 18.5% SC", "Coragen", 3500, "liter");
-    stmtPrices.run("Cartap Hydrochloride", "Padan", 950, "kg");
-    stmtPrices.run("Metalaxyl + Mancozeb", "Ridomil Gold", 1350, "kg");
-    stmtPrices.run("Fosetyl-Al", "Aliette", 1750, "kg");
-
-    stmtPrices.finalize();
-});
+    throw new Error(`SQL type not supported by shim: ${cleanSql.substring(0, 50)}...`);
+}
 
 module.exports = db;
