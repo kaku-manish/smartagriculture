@@ -15,11 +15,11 @@ const FarmersDashboard = () => {
             const user = JSON.parse(localStorage.getItem('user'));
             if (!user) return;
 
-            const res = await axios.get(`http://localhost:3000/farm/user/${user.id}/status`);
+            const res = await axios.get(`${API_URL}/farm/user/${user.id}/status`);
             setData(res.data);
 
             if (res.data.farm?.farm_id) {
-                const costRes = await axios.get(`http://localhost:3000/cost/estimate/${res.data.farm.farm_id}`);
+                const costRes = await axios.get(`${API_URL}/cost/estimate/${res.data.farm.farm_id}`);
                 setCostData(costRes.data);
             }
 
@@ -48,7 +48,7 @@ const FarmersDashboard = () => {
         if (path.startsWith('http')) return path;
         const cleanPath = path.replace(/\\/g, '/');
         const filename = cleanPath.split('/').pop();
-        return `http://localhost:3000/uploads/${filename}`;
+        return `${API_URL}/uploads/${filename}`;
     };
 
     const latest_iot = data?.latest_iot || null;

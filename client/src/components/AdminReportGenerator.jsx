@@ -14,12 +14,12 @@ const AdminReportGenerator = ({ farmer, onBack, onSuccess, analysisResult }) => 
             if (!farmer) return;
             try {
                 // Fetch status (contains latest drone/analysis and recommendation)
-                const statusRes = await axios.get(`http://localhost:3000/farm/user/${farmer.user_id}/status`);
+                const statusRes = await axios.get(`${API_URL}/farm/user/${farmer.user_id}/status`);
                 setFarmData(statusRes.data);
 
                 // Fetch cost estimation
                 if (statusRes.data.farm?.farm_id) {
-                    const costRes = await axios.get(`http://localhost:3000/cost/estimate/${statusRes.data.farm.farm_id}`);
+                    const costRes = await axios.get(`${API_URL}/cost/estimate/${statusRes.data.farm.farm_id}`);
                     setCostData(costRes.data);
                 }
             } catch (err) {
@@ -75,7 +75,7 @@ const AdminReportGenerator = ({ farmer, onBack, onSuccess, analysisResult }) => 
         if (path.startsWith('http')) return path;
         const cleanPath = path.replace(/\\/g, '/');
         const filename = cleanPath.split('/').pop();
-        return `http://localhost:3000/uploads/${filename}`;
+        return `${API_URL}/uploads/${filename}`;
     };
 
     if (loading) return <div className="p-10 text-center text-gray-500">Preparing Report Data...</div>;

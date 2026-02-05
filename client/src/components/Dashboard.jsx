@@ -56,7 +56,7 @@ const Dashboard = () => {
             const id = userId || user?.id;
             if (!id) return;
 
-            const res = await axios.get(`http://localhost:3000/farm/user/${id}/status`);
+            const res = await axios.get(`${API_URL}/farm/user/${id}/status`);
             if (res.data.farm) {
                 setFarmId(res.data.farm.farm_id);
                 setFarmData(res.data.farm);

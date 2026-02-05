@@ -14,7 +14,7 @@ const IoTSensors = () => {
             const user = JSON.parse(localStorage.getItem('user'));
             if (!user) return;
 
-            const res = await axios.get(`http://localhost:3000/farm/user/${user.id}/status`);
+            const res = await axios.get(`${API_URL}/farm/user/${user.id}/status`);
             setIotData(res.data.latest_iot);
             setLoading(false);
             setLastUpdated(new Date());

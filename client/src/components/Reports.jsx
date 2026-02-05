@@ -14,7 +14,7 @@ const Reports = ({ farmId }) => {
                 return;
             }
             try {
-                const res = await axios.get(`http://localhost:3000/reports/${farmId}`);
+                const res = await axios.get(`${API_URL}/reports/${farmId}`);
                 if (res.data.reports) {
                     setReports(res.data.reports);
                 }
@@ -198,7 +198,7 @@ const ReportContent = ({ report }) => {
         if (path.startsWith('http')) return path;
         const cleanPath = path.replace(/\\/g, '/');
         const filename = cleanPath.split('/').pop();
-        return `http://localhost:3000/uploads/${filename}`;
+        return `${API_URL}/uploads/${filename}`;
     };
 
     return (

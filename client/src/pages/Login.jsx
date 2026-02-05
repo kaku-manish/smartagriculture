@@ -21,6 +21,7 @@ import {
     AlertTriangle
 } from 'lucide-react';
 import bgImage from '../assets/paddy_login_bg.png';
+import LanguageSelector from '../components/LanguageSelector';
 import API_URL from '@/api/config';
 
 const Login = () => {

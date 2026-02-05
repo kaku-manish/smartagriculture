@@ -18,7 +18,7 @@ const CostEstimation = () => {
 
     const fetchFarmId = async (userId) => {
         try {
-            const res = await axios.get(`http://localhost:3000/farm/user/${userId}/status`);
+            const res = await axios.get(`${API_URL}/farm/user/${userId}/status`);
             if (res.data.farm) {
                 setFarmId(res.data.farm.farm_id);
                 fetchCostEstimation(res.data.farm.farm_id);
@@ -31,7 +31,7 @@ const CostEstimation = () => {
 
     const fetchCostEstimation = async (fId) => {
         try {
-            const res = await axios.get(`http://localhost:3000/cost/estimate/${fId}`);
+            const res = await axios.get(`${API_URL}/cost/estimate/${fId}`);
             setcostData(res.data);
         } catch (err) {
             console.error(err);

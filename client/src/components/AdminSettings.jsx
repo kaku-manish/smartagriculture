@@ -62,7 +62,7 @@ const AdminSettings = () => {
 
     const handleUpdate = async (id) => {
         try {
-            await axios.put(`http://localhost:3000/cost/medicine/${id}`, editForm);
+            await axios.put(`${API_URL}/cost/medicine/${id}`, editForm);
             setMessage({ type: 'success', text: 'Price updated successfully!' });
             setEditingId(null);
             fetchAllData();

@@ -12,7 +12,7 @@ const DiseaseHistory = ({ farmId }) => {
         const fetchHistory = async () => {
             if (!farmId) return;
             try {
-                const res = await axios.get(`http://localhost:3000/drone/history/${farmId}`);
+                const res = await axios.get(`${API_URL}/drone/history/${farmId}`);
                 if (res.data.history) {
                     setHistory(res.data.history);
                 }
@@ -31,7 +31,7 @@ const DiseaseHistory = ({ farmId }) => {
         if (path.startsWith('http')) return path;
         const cleanPath = path.replace(/\\/g, '/');
         const filename = cleanPath.split('/').pop();
-        return `http://localhost:3000/uploads/${filename}`;
+        return `${API_URL}/uploads/${filename}`;
     };
 
     if (loading) {

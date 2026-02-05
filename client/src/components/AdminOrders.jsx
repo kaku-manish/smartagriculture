@@ -38,7 +38,7 @@ const AdminOrders = () => {
 
     const updateStatus = async (orderId, newStatus) => {
         try {
-            await axios.put(`http://localhost:3000/orders/status/${orderId}`, { status: newStatus });
+            await axios.put(`${API_URL}/orders/status/${orderId}`, { status: newStatus });
             fetchOrders();
         } catch (err) {
             console.error("Failed to update status:", err);

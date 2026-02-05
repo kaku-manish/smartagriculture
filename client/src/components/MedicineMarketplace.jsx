@@ -58,8 +58,8 @@ const MedicineMarketplace = ({ farmId, user }) => {
     const fetchMarketplaceData = async () => {
         try {
             const [analysisRes, medicinesRes] = await Promise.all([
-                axios.get(`http://localhost:3000/cost/estimate/${farmId}`),
-                axios.get(`http://localhost:3000/cost/medicines`)
+                axios.get(`${API_URL}/cost/estimate/${farmId}`),
+                axios.get(`${API_URL}/cost/medicines`)
             ]);
 
             if (analysisRes.data.hasData) {

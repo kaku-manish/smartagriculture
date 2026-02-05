@@ -49,7 +49,7 @@ const ActionPlan = ({ recommendation, setActiveTab, resetAnalysis }) => {
         // Let's assume standard behavior: we need `${API_URL}/uploads/<filename>`
 
         const filename = cleanPath.split('/').pop();
-        return `http://localhost:3000/uploads/${filename}`;
+        return `${API_URL}/uploads/${filename}`;
     };
 
     const imageUrl = getImageUrl(recommendation.annotated_image_reference || recommendation.image_reference);
