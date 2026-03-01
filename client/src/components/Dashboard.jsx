@@ -22,6 +22,7 @@ import AdminDroneReportControl from './AdminDroneReportControl';
 import AdminDroneAnalysis from './AdminDroneAnalysis';
 import MedicineMarketplace from './MedicineMarketplace';
 import AdminOrders from './AdminOrders';
+import SplitText from './SplitText';
 import drone_bg from '../assets/drone_bg.png';
 
 const Dashboard = () => {
@@ -73,8 +74,21 @@ const Dashboard = () => {
         }
     };
 
-    const handleAnalysisComplete = () => {
-        fetchFarmData();
+    const handleAnalysisComplete = (result) => {
+        if (result) {
+            // Transform common result format to recommendation format if needed
+            // The result from /drone/analysis has { disease_type, severity, confidence, image_reference, annotated_image_reference }
+            // Our recommendation state expects { disease_detected, severity, confidence, ... }
+            const normalizedResult = {
+                ...result,
+                disease_detected: result.disease_type,
+                // generate_recommendation usually adds timeline/medicines
+                // For now, let's trigger a fetch anyway to get full recommendation details, 
+                // but set the immediate result to show progress/feedback.
+            };
+            setRecommendation(normalizedResult);
+        }
+        fetchFarmData(); // Refresh everything in background
         setActiveTab('Action Plan & Treatments');
     };
 
@@ -93,78 +107,78 @@ const Dashboard = () => {
     const role = user?.role || 'farmer';
 
     const menuItems = role === 'admin' ? [
-        { name: 'Home', icon: 'home' },
-        { name: 'Dashboard', icon: 'grid' },
-        { name: 'User Controls', icon: 'users' },
+        { name: t('home'), icon: 'home', targetTab: 'Home' },
+        { name: t('dashboard'), icon: 'grid', targetTab: 'Dashboard' },
+        { name: t('user_controls'), icon: 'users', targetTab: 'User Controls' },
         {
-            name: 'IoT Sensors',
+            name: t('iot_sensors_sidebar'),
             icon: 'rss',
             subItems: [
-                { name: 'Sensor Overview', targetTab: 'IoT Sensors' },
-                { name: 'Soil Moisture', targetTab: 'IoT Sensors' },
-                { name: 'Water Level', targetTab: 'IoT Sensors' }
+                { name: t('sensor_overview'), targetTab: 'IoT Sensors' },
+                { name: t('soil_moisture'), targetTab: 'IoT Sensors' },
+                { name: t('water_level'), targetTab: 'IoT Sensors' }
             ]
         },
         {
-            name: 'Action Plans',
+            name: t('action_plans'),
             icon: 'clipboard',
             subItems: [
-                { name: 'Treatments', targetTab: 'Action Plan & Treatments' },
-                { name: 'Cost Estimation', targetTab: 'Cost Estimation' }
+                { name: t('treatments'), targetTab: 'Action Plan & Treatments' },
+                { name: t('cost_estimation_sidebar'), targetTab: 'Cost Estimation' }
             ]
         },
         {
-            name: 'Disease Analysis',
+            name: t('disease_analysis'),
             icon: 'microscope',
             subItems: [
-                { name: 'Manual Check', targetTab: 'Manual Disease Check' },
-                { name: 'Live Camera', targetTab: 'Start Live Camera' },
-                { name: 'Drone Analysis', targetTab: 'Drone Analysis' }
+                { name: t('manual_check'), targetTab: 'Manual Disease Check' },
+                { name: t('live_camera'), targetTab: 'Start Live Camera' },
+                { name: t('drone_analysis_sidebar'), targetTab: 'Drone Analysis' }
             ]
         },
-        { name: 'Admin Drone Reports', icon: 'zap', targetTab: 'Admin Drone Reports' },
-        { name: 'Medicine Catalog', icon: 'settings' },
-        { name: 'Orders Management', icon: 'clipboard', targetTab: 'Orders' },
-        { name: 'Crop Advisory', icon: 'book', targetTab: 'Crop Advisory & Soil Guide' }
+        { name: t('admin_drone_reports'), icon: 'zap', targetTab: 'Drone Analysis Hub' },
+        { name: t('medicine_catalog'), icon: 'settings', targetTab: 'Medicine Catalog' },
+        { name: t('orders_management'), icon: 'clipboard', targetTab: 'Orders' },
+        { name: t('crop_advisory'), icon: 'book', targetTab: 'Crop Advisory & Soil Guide' }
     ] : [
-        { name: 'Home', icon: 'home' },
+        { name: t('home'), icon: 'home', targetTab: 'Home' },
         {
-            name: 'Dashboard',
+            name: t('dashboard'),
             icon: 'grid',
             subItems: [
-                { name: 'Monitoring', targetTab: 'Dashboard' },
-                { name: 'Reports', targetTab: 'Reports' },
-                { name: 'Crop Advisory & Guide', targetTab: 'Crop Advisory & Soil Guide' }
+                { name: t('monitoring'), targetTab: 'Dashboard' },
+                { name: t('reports'), targetTab: 'Reports' },
+                { name: t('crop_guide'), targetTab: 'Crop Advisory & Soil Guide' }
             ]
         },
         {
-            name: 'IoT Sensors',
+            name: t('iot_sensors_sidebar'),
             icon: 'rss',
             subItems: [
-                { name: 'Soil Moisture', targetTab: 'IoT Sensors' },
-                { name: 'Water Level', targetTab: 'IoT Sensors' },
-                { name: 'Temperature', targetTab: 'IoT Sensors' },
-                { name: 'Humidity', targetTab: 'IoT Sensors' }
+                { name: t('soil_moisture'), targetTab: 'IoT Sensors' },
+                { name: t('water_level'), targetTab: 'IoT Sensors' },
+                { name: t('temperature'), targetTab: 'IoT Sensors' },
+                { name: t('humidity'), targetTab: 'IoT Sensors' }
             ]
         },
         {
-            name: 'Action Plans',
+            name: t('action_plans'),
             icon: 'clipboard',
             subItems: [
-                { name: 'Treatments', targetTab: 'Action Plan & Treatments' },
-                { name: 'Cost Estimation', targetTab: 'Cost Estimation' },
-                { name: 'History of Disease', targetTab: 'Disease History' }
+                { name: t('treatments'), targetTab: 'Action Plan & Treatments' },
+                { name: t('cost_estimation_sidebar'), targetTab: 'Cost Estimation' },
+                { name: t('history_of_disease'), targetTab: 'History of Disease' }
             ]
         },
         {
-            name: 'Disease Analysis',
+            name: t('disease_analysis'),
             icon: 'microscope',
             subItems: [
-                { name: 'Manual Check', targetTab: 'Manual Disease Check' },
-                { name: 'Live Camera Check', targetTab: 'Start Live Camera' }
+                { name: t('manual_check'), targetTab: 'Manual Disease Check' },
+                { name: t('live_camera'), targetTab: 'Live Camera Check' }
             ]
         },
-        { name: 'Purchase', icon: 'dollar' }
+        { name: t('purchase'), icon: 'dollar', targetTab: 'Purchase' }
     ];
 
     const renderContent = () => {
@@ -193,7 +207,7 @@ const Dashboard = () => {
                 return <IoTSensors />;
             case 'Cost Estimation':
                 return <CostEstimation />;
-            case 'Disease History':
+            case 'History of Disease':
                 return <DiseaseHistory farmId={farmId} />;
             case 'Reports':
                 return <Reports farmId={farmId} />;
@@ -203,7 +217,7 @@ const Dashboard = () => {
                 return <AdminSettings />;
             case 'Drone Analysis':
                 return <AdminDroneAnalysis />;
-            case 'Admin Drone Reports':
+            case 'Drone Analysis Hub':
                 return <AdminDroneReportControl />;
             case 'Orders':
                 return <AdminOrders />;
@@ -249,13 +263,28 @@ const Dashboard = () => {
                 {/* Branding */}
                 <div className="p-6 flex items-center space-x-3 text-white border-b border-white/10 bg-black/5">
                     <div className="bg-white/20 p-2 rounded-lg shadow-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="m7 20 3-8 2 5h-1" />
+                            <path d="M10 8 5.5 2" />
+                            <path d="m14 8 4.5-6" />
+                            <path d="M12 22v-9" />
+                            <path d="m12 13-3-4" />
+                            <path d="m12 13 3-4" />
                         </svg>
                     </div>
                     <div>
-                        <span className="text-lg font-bold tracking-wide block leading-none">Smart Agri</span>
-                        <span className="text-xs text-white/80 font-medium">{role === 'admin' ? 'Admin Console' : 'User Panel'}</span>
+                        <SplitText
+                            text="Paddy Pulse"
+                            className="text-lg font-bold tracking-wide block leading-none"
+                            delay={30}
+                            duration={1}
+                            from={{ opacity: 0, x: -20 }}
+                            to={{ opacity: 1, x: 0 }}
+                            ease="power2.out"
+                            threshold={0.1}
+                            tag="span"
+                        />
+                        <span className="text-xs text-white/80 font-medium">{role === 'admin' ? t('admin_console') : t('user_panel')}</span>
                     </div>
                 </div>
 
@@ -263,7 +292,7 @@ const Dashboard = () => {
                 {role === 'admin' && (
                     <div className="px-6 py-4">
                         <div className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-center border bg-orange-500/20 text-orange-100 border-orange-500/30">
-                            Administrator
+                            {t('administrator')}
                         </div>
                     </div>
                 )}
@@ -282,7 +311,7 @@ const Dashboard = () => {
                                     }
                                 }}
                                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group text-sm font-medium mb-1
-                                    ${activeTab === (item.targetTab || item.name) && !item.subItems
+                                    ${activeTab === (item.targetTab || item.name)
                                         ? 'bg-white/20 text-white shadow-lg'
                                         : 'text-white/80 hover:bg-white/10 hover:text-white'}`}
                             >
@@ -344,7 +373,7 @@ const Dashboard = () => {
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                             </svg>
-                            <span>Edit Profile</span>
+                            <span>{t('edit_profile')}</span>
                         </button>
                     </div>
                     <div className="flex items-center justify-between space-x-2">
@@ -363,7 +392,7 @@ const Dashboard = () => {
                                 window.location.href = '/login';
                             }}
                             className="text-red-200 hover:text-white hover:bg-white/10 p-2 rounded-full transition-colors shrink-0"
-                            title="Logout"
+                            title={t('logout')}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -380,8 +409,18 @@ const Dashboard = () => {
                 <header className="h-20 backdrop-blur-md bg-white/80 border-b border-white/50 flex justify-between items-center px-8 shadow-sm">
                     {/* Title */}
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-800">{activeTab}</h2>
-                        <p className="text-sm text-gray-500">Overview & Management</p>
+                        <SplitText
+                            text={activeTab}
+                            className="text-2xl font-bold text-gray-800"
+                            delay={40}
+                            duration={0.8}
+                            from={{ opacity: 0, y: -20 }}
+                            to={{ opacity: 1, y: 0 }}
+                            ease="back.out(1.7)"
+                            threshold={0.1}
+                            tag="h2"
+                        />
+                        <p className="text-sm text-gray-500">{t('overview_management')}</p>
                     </div>
 
                     {/* Right Actions */}

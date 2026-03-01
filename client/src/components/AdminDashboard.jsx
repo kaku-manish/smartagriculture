@@ -1,13 +1,14 @@
-import API_URL from '@/api/config';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '@/api/config';
 import { useTranslation } from 'react-i18next';
+import IntegratedAgroModule from './IntegratedAgroModule';
 
 const AdminDashboard = ({ onGenerateReport }) => {
     const { t } = useTranslation();
     const [farmers, setFarmers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [selectedFarmerId, setSelectedFarmerId] = useState(null);
 
     useEffect(() => {
         fetchFarmers();
@@ -20,12 +21,26 @@ const AdminDashboard = ({ onGenerateReport }) => {
             setLoading(false);
         } catch (err) {
             console.error("Failed to fetch farmers:", err);
-            setError("Failed to load farmers list");
             setLoading(false);
         }
     };
 
-    if (loading) return <div className="p-8 text-center text-gray-500">Loading User List...</div>;
+    if (loading) return <div className="p-8 text-center text-gray-500">{t('loading_user_list')}</div>;
+
+    if (selectedFarmerId) {
+        return (
+            <div className="space-y-6">
+                <button
+                    onClick={() => setSelectedFarmerId(null)}
+                    className="mb-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center"
+                >
+                    ⬅ Back to Farmers List
+                </button>
+
+                <IntegratedAgroModule farmId={selectedFarmerId} />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -43,10 +58,10 @@ const AdminDashboard = ({ onGenerateReport }) => {
                                 <th className="px-6 py-3">{t('farmer_name')}</th>
                                 <th className="px-6 py-3">{t('contact')}</th>
                                 <th className="px-6 py-3">{t('location')}</th>
-                                <th className="px-6 py-3">Field Size</th>
+                                <th className="px-6 py-3">{t('field_size')}</th>
                                 <th className="px-6 py-3">{t('crop_info')}</th>
                                 <th className="px-6 py-3">{t('joined')}</th>
-                                <th className="px-6 py-3 text-center">Actions</th>
+                                <th className="px-6 py-3 text-center">{t('actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -78,7 +93,7 @@ const AdminDashboard = ({ onGenerateReport }) => {
                                             )}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="font-semibold text-gray-700">{farmer.field_size || 0} Acres</span>
+                                            <span className="font-semibold text-gray-700">{farmer.field_size || 0} {t('acres')}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             {farmer.soil_type ? (
@@ -96,13 +111,22 @@ const AdminDashboard = ({ onGenerateReport }) => {
                                             {new Date(farmer.created_at).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            <button
-                                                onClick={() => onGenerateReport(farmer)}
-                                                className="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black py-2 px-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all uppercase tracking-widest flex items-center mx-auto"
-                                            >
-                                                <span className="mr-2">📄</span>
-                                                Generate Report
-                                            </button>
+                                            <div className="flex justify-center gap-2">
+                                                <button
+                                                    onClick={() => onGenerateReport(farmer)}
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black py-2 px-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all uppercase tracking-widest flex items-center"
+                                                >
+                                                    <span className="mr-2">📄</span>
+                                                    {t('generate_report')}
+                                                </button>
+                                                <button
+                                                    onClick={() => setSelectedFarmerId(farmer.farm_id || farmer.user_id)} // Fallback to user_id if farm_id missing (demo)
+                                                    className="bg-purple-600 hover:bg-purple-700 text-white text-[10px] font-black py-2 px-4 rounded-xl shadow-lg shadow-purple-500/20 transition-all uppercase tracking-widest flex items-center"
+                                                >
+                                                    <span className="mr-2">🎯</span>
+                                                    View Dashboard
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))

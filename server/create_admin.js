@@ -9,7 +9,7 @@ const ADMIN_PASS = 'admin123'; // Default password
 const ADMIN_EMAIL = 'admin@smartagri.com';
 const ADMIN_NAME = 'System Administrator';
 
-console.log(`\n🌱 Smart Agri - Admin Account Creator`);
+console.log(`\n🌱 Paddy Pulse - Admin Account Creator`);
 console.log(`=======================================`);
 console.log(`Target Database: ${DB_PATH}`);
 console.log(`Creating Admin User: ${ADMIN_USER}`);

@@ -156,7 +156,12 @@ router.post('/analysis', upload.single('image'), async (req, res) => {
 
             if (prediction.error) {
                 console.error("ML Error:", prediction.error);
-                disease_type = "Detection Failed";
+                // If it's a real error (not just invalid image), return 500
+                return res.status(500).json({
+                    error: "ML_PROCESS_ERROR",
+                    message: "The analysis engine encountered an error. Please contact support.",
+                    details: prediction.error
+                });
             } else {
                 disease_type = prediction.disease || 'Unknown';
                 // Use actual confidence from ML

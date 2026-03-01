@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import bgImage from '../assets/paddy_login_bg.png';
 import LanguageSelector from '../components/LanguageSelector';
+import SplitText from '../components/SplitText';
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -51,7 +52,6 @@ const Signup = () => {
         }
     };
 
-    // ... existing location logic ...
     const handleLocationSearch = (query) => {
         if (locationTimeoutRef.current) clearTimeout(locationTimeoutRef.current);
         if (query.length < 3) {
@@ -64,7 +64,7 @@ const Signup = () => {
             try {
                 const response = await axios.get('https://nominatim.openstreetmap.org/search', {
                     params: { q: query, format: 'json', addressdetails: 1, limit: 5, countrycodes: 'in' },
-                    headers: { 'User-Agent': 'SmartAgriDashboard/1.0' }
+                    headers: { 'User-Agent': 'PaddyPulseDashboard/1.0' }
                 });
                 const suggestions = response.data.map(item => ({
                     display_name: item.display_name,
@@ -150,7 +150,17 @@ const Signup = () => {
                         <div className="absolute bottom-0 left-0 w-64 h-64 bg-teal-400/10 rounded-full blur-3xl -ml-20 -mb-20"></div>
 
                         <div>
-                            <h2 className="text-3xl font-bold text-white mb-4">Join Paddy Guard</h2>
+                            <SplitText
+                                text="Join Paddy Pulse"
+                                className="text-3xl font-bold text-white mb-4"
+                                delay={40}
+                                duration={1}
+                                from={{ opacity: 0, y: 30 }}
+                                to={{ opacity: 1, y: 0 }}
+                                ease="power4.out"
+                                threshold={0.1}
+                                tag="h2"
+                            />
                             <p className="text-emerald-100/80 leading-relaxed">
                                 Create your farmer profile to access AI-driven crop insights, drone survey reports, and actionable treatment plans.
                             </p>
@@ -178,7 +188,7 @@ const Signup = () => {
                         </div>
 
                         <div className="text-xs text-emerald-200/50">
-                            © 2026 Paddy Guard Intelligence
+                            © 2026 Paddy Pulse Intelligence
                         </div>
                     </div>
 
@@ -186,7 +196,17 @@ const Signup = () => {
                     <div className="w-full md:w-3/5 p-8 md:p-12 relative overflow-y-auto max-h-[85vh] scrollbar-thin scrollbar-thumb-emerald-700 scrollbar-track-transparent">
 
                         <div className="mb-8">
-                            <h3 className="text-2xl font-bold text-white mb-2">Register Field Account</h3>
+                            <SplitText
+                                text="Register Field Account"
+                                className="text-2xl font-bold text-white mb-2"
+                                delay={30}
+                                duration={1.2}
+                                from={{ opacity: 0, scale: 0.9 }}
+                                to={{ opacity: 1, scale: 1 }}
+                                ease="expo.out"
+                                threshold={0.1}
+                                tag="h3"
+                            />
                             <p className="text-emerald-200/70 text-sm">Enter your personal and farm details below.</p>
                         </div>
 

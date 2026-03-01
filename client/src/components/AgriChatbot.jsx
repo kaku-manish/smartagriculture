@@ -8,7 +8,7 @@ const AgriChatbot = ({ farmData, recommendation, iotData }) => {
     const [messages, setMessages] = useState([
         {
             type: 'bot',
-            text: 'Namaste! I am your Smart Agriculture Assistant with 40 years of farming experience. How can I help you today?',
+            text: 'Namaste! I am your Paddy Pulse Assistant with 40 years of farming experience. How can I help you today?',
             timestamp: new Date()
         }
     ]);
@@ -216,8 +216,8 @@ const AgriChatbot = ({ farmData, recommendation, iotData }) => {
                         {messages.map((msg, idx) => (
                             <div key={idx} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`max-w-[80%] rounded-2xl p-3 ${msg.type === 'user'
-                                        ? 'bg-green-500 text-white rounded-br-none'
-                                        : 'bg-white text-gray-800 rounded-bl-none shadow-sm border border-gray-100'
+                                    ? 'bg-green-500 text-white rounded-br-none'
+                                    : 'bg-white text-gray-800 rounded-bl-none shadow-sm border border-gray-100'
                                     }`}>
                                     <p className="text-sm whitespace-pre-line">{msg.text}</p>
                                     <span className={`text-xs mt-1 block ${msg.type === 'user' ? 'text-green-100' : 'text-gray-400'}`}>

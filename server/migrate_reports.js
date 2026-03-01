@@ -14,12 +14,17 @@ db.serialize(() => {
         title TEXT,
         type TEXT DEFAULT 'pdf',
         generated_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-        video_url TEXT, -- In case we want to attach the video loop later
-        status TEXT DEFAULT 'Ready',
-        FOREIGN KEY(farm_id) REFERENCES farms(farm_id)
+        file_path TEXT,
+        card_path TEXT,
+        status TEXT DEFAULT 'Ready'
     )`, (err) => {
         if (err) console.error("Error creating reports table:", err);
-        else console.log("'reports' table ready.");
+        else {
+            console.log("'reports' table ready.");
+            // Migration for existing columns
+            db.run(`ALTER TABLE reports ADD COLUMN file_path TEXT`, () => { });
+            db.run(`ALTER TABLE reports ADD COLUMN card_path TEXT`, () => { });
+        }
     });
 });
 

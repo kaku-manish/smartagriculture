@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-    Leaf,
+    Wheat,
     Droplets,
     Scan,
     FileText,
@@ -23,6 +23,7 @@ import {
 import bgImage from '../assets/paddy_login_bg.png';
 import LanguageSelector from '../components/LanguageSelector';
 import API_URL from '@/api/config';
+import SplitText from '../components/SplitText';
 
 const Login = () => {
     const [formData, setFormData] = useState({ username: '', password: '' });
@@ -98,7 +99,7 @@ const Login = () => {
 
                 <div className="container mx-auto z-10 grid lg:grid-cols-2 gap-12 items-center">
 
-                    {/* Left Side: Brand & Value (About Paddy Guard) */}
+                    {/* Left Side: Brand & Value (About Paddy Pulse) */}
                     <div className="text-white space-y-8 max-w-2xl">
                         <motion.div
                             initial="hidden"
@@ -108,14 +109,22 @@ const Login = () => {
                         >
                             <div className="flex items-center space-x-3 mb-4">
                                 <div className="p-2 bg-emerald-500 rounded-lg">
-                                    <Leaf className="w-8 h-8 text-white" />
+                                    <Wheat className="w-8 h-8 text-white" />
                                 </div>
-                                <span className="text-xl font-bold tracking-wider uppercase text-emerald-300">Paddy Guard</span>
+                                <span className="text-xl font-bold tracking-wider uppercase text-emerald-300">Paddy Pulse</span>
                             </div>
-                            <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
-                                Advanced AI for <br />
-                                <span className="text-emerald-400">Rice Cultivation</span>
-                            </h1>
+                            <SplitText
+                                text="Advanced AI for Rice Cultivation"
+                                className="text-5xl lg:text-7xl font-bold leading-tight"
+                                delay={40}
+                                duration={1.2}
+                                from={{ opacity: 0, y: 50 }}
+                                to={{ opacity: 1, y: 0 }}
+                                ease="back.out(1.7)"
+                                threshold={0.1}
+                                textAlign="left"
+                                tag="h1"
+                            />
                         </motion.div>
 
                         <motion.div
@@ -125,11 +134,19 @@ const Login = () => {
                             transition={{ duration: 0.6, delay: 0.2 }}
                             className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10"
                         >
-                            <h3 className="text-2xl font-semibold mb-3 text-emerald-100">About Paddy Guard</h3>
-                            <p className="text-lg text-emerald-50 leading-relaxed">
-                                Paddy Guard is an AI-powered drone monitoring platform designed exclusively for paddy fields.
-                                It helps farmers detect crop diseases early, reduce losses, and improve yield through smart analysis and detailed reports.
-                            </p>
+                            <h3 className="text-2xl font-semibold mb-3 text-emerald-100">About Paddy Pulse</h3>
+                            <SplitText
+                                text="Paddy Pulse is an AI-powered drone monitoring platform designed exclusively for paddy fields. It helps farmers detect crop diseases early, reduce losses, and improve yield through smart analysis and detailed reports."
+                                className="text-lg text-emerald-50 leading-relaxed"
+                                delay={5}
+                                duration={0.8}
+                                splitType="words"
+                                from={{ opacity: 0, x: -20 }}
+                                to={{ opacity: 1, x: 0 }}
+                                ease="power2.out"
+                                threshold={0.1}
+                                textAlign="left"
+                            />
                         </motion.div>
 
                         <motion.div
@@ -161,8 +178,29 @@ const Login = () => {
                             {/* Glass Reflection */}
                             <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-400/20 rounded-full blur-3xl"></div>
 
-                            <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
-                            <p className="text-emerald-100 mb-8">Access your field reports</p>
+                            <SplitText
+                                text="Welcome Back"
+                                className="text-3xl font-bold text-white mb-2"
+                                delay={80}
+                                duration={1}
+                                from={{ opacity: 0, scale: 0.5 }}
+                                to={{ opacity: 1, scale: 1 }}
+                                ease="elastic.out(1, 0.5)"
+                                threshold={0.1}
+                                textAlign="left"
+                                tag="h2"
+                            />
+                            <SplitText
+                                text="Access your field reports"
+                                className="text-emerald-100 mb-8 block"
+                                delay={30}
+                                duration={1.2}
+                                from={{ opacity: 0, y: 20 }}
+                                to={{ opacity: 1, y: 0 }}
+                                threshold={0.1}
+                                textAlign="left"
+                                tag="p"
+                            />
 
                             {error && (
                                 <div className="mb-6 p-3 bg-red-500/80 backdrop-blur-sm text-white rounded-lg text-sm flex items-center">
@@ -263,7 +301,17 @@ const Login = () => {
                 <section className="py-24 px-6 container mx-auto bg-gradient-to-b from-white to-emerald-50/50">
                     <div className="text-center mb-16">
                         <span className="text-emerald-600 font-bold tracking-wider uppercase text-sm mb-2 block">For Everyone</span>
-                        <h2 className="text-4xl lg:text-5xl font-bold text-emerald-950 mb-4">Dedicated Paddy Solutions</h2>
+                        <SplitText
+                            text="Dedicated Paddy Solutions"
+                            className="text-4xl lg:text-5xl font-bold text-emerald-950 mb-4"
+                            delay={40}
+                            duration={1}
+                            from={{ opacity: 0, y: 30 }}
+                            to={{ opacity: 1, y: 0 }}
+                            ease="power4.out"
+                            threshold={0.1}
+                            tag="h2"
+                        />
                         <p className="text-gray-500 max-w-2xl mx-auto text-lg">Tailored access levels designed to streamline the workflow from field to report.</p>
                     </div>
 
@@ -279,8 +327,8 @@ const Login = () => {
                                 Directly register and log in to view analysis, receive treatment plans, and monitor crop health costs.
                             </p>
                             <ul className="space-y-3 mb-8 relative z-10">
-                                <li className="flex items-center text-gray-600 font-medium"><Leaf className="w-5 h-5 mr-3 text-emerald-500" /> View Reports</li>
-                                <li className="flex items-center text-gray-600 font-medium"><Leaf className="w-5 h-5 mr-3 text-emerald-500" /> Get Treatments</li>
+                                <li className="flex items-center text-gray-600 font-medium"><Wheat className="w-5 h-5 mr-3 text-emerald-500" /> View Reports</li>
+                                <li className="flex items-center text-gray-600 font-medium"><Wheat className="w-5 h-5 mr-3 text-emerald-500" /> Get Treatments</li>
                             </ul>
                             <Link to="/signup" className="inline-flex items-center text-white bg-emerald-500 hover:bg-emerald-600 px-6 py-3 rounded-xl font-semibold transition-all shadow-lg shadow-emerald-200">
                                 Register Now <ArrowRight className="w-4 h-4 ml-2" />
@@ -332,7 +380,17 @@ const Login = () => {
                             {/* Left: Why Drone */}
                             <div>
                                 <span className="text-emerald-600 font-bold tracking-wider uppercase text-sm mb-2 block">Value Proposition</span>
-                                <h2 className="text-4xl font-bold text-gray-900 mb-6">Why Drone Analysis?</h2>
+                                <SplitText
+                                    text="Why Drone Analysis?"
+                                    className="text-4xl font-bold text-gray-900 mb-6"
+                                    delay={40}
+                                    duration={1}
+                                    from={{ opacity: 0, x: -50 }}
+                                    to={{ opacity: 1, x: 0 }}
+                                    ease="power3.out"
+                                    threshold={0.1}
+                                    tag="h2"
+                                />
                                 <div className="space-y-5">
                                     {[
                                         "Covers large paddy fields (30–50+ acres) in minutes",
@@ -412,7 +470,17 @@ const Login = () => {
                 <section className="py-20 bg-emerald-50/30 border-t border-emerald-100">
                     <div className="container mx-auto px-6 text-center">
                         <span className="text-emerald-600 font-bold tracking-wider uppercase text-sm mb-2 block">Our Capabilities</span>
-                        <h2 className="text-3xl font-bold text-emerald-950 mb-10">Paddy Diseases We Detect</h2>
+                        <SplitText
+                            text="Paddy Diseases We Detect"
+                            className="text-3xl font-bold text-emerald-950 mb-10"
+                            delay={30}
+                            duration={1.2}
+                            from={{ opacity: 0, scale: 0.9 }}
+                            to={{ opacity: 1, scale: 1 }}
+                            ease="expo.out"
+                            threshold={0.1}
+                            tag="h2"
+                        />
 
                         <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
                             {[
@@ -430,11 +498,11 @@ const Login = () => {
                                 </div>
                             ))}
                         </div>
-                        <p className="mt-8 text-sm text-gray-500">
-                            <span className="inline-flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-500"></div> High Severity</span>
-                            <span className="inline-flex items-center gap-2 ml-4"><div className="w-2 h-2 rounded-full bg-amber-400"></div> Moderate</span>
-                            <span className="inline-flex items-center gap-2 ml-4"><div className="w-2 h-2 rounded-full bg-emerald-500"></div> Monitor</span>
-                        </p>
+                        <div className="mt-8 text-sm text-gray-500 flex flex-wrap justify-center gap-4">
+                            <span className="inline-flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-red-500 inline-block"></span> High Severity</span>
+                            <span className="inline-flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block"></span> Moderate</span>
+                            <span className="inline-flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Monitor</span>
+                        </div>
                     </div>
                 </section>
 
@@ -445,7 +513,17 @@ const Login = () => {
                     <div className="container mx-auto px-6 relative z-10">
                         <div className="text-center mb-20">
                             <span className="text-emerald-600 font-bold tracking-wider uppercase text-sm mb-2 block">Workflow</span>
-                            <h2 className="text-4xl lg:text-5xl font-bold text-emerald-950">How Paddy Guard Works</h2>
+                            <SplitText
+                                text="How Paddy Pulse Works"
+                                className="text-4xl lg:text-5xl font-bold text-emerald-950"
+                                delay={40}
+                                duration={1}
+                                from={{ opacity: 0, y: 40 }}
+                                to={{ opacity: 1, y: 0 }}
+                                ease="power2.out"
+                                threshold={0.1}
+                                tag="h2"
+                            />
                         </div>
 
                         <div className="flex flex-col md:flex-row justify-center items-start relative max-w-5xl mx-auto">
@@ -456,7 +534,7 @@ const Login = () => {
                                 { icon: Scan, title: "Drone Scan", desc: "Aerial field survey captures high-res imagery", color: "bg-blue-500" },
                                 { icon: Droplets, title: "AI Analysis", desc: "Deep learning model detects diseases & moisture", color: "bg-emerald-500" },
                                 { icon: FileText, title: "Report Gen", desc: "Detailed insights & treatment plans generated", color: "bg-amber-500" },
-                                { icon: Leaf, title: "Farmer Action", desc: "Apply targeted treatment to improve yield", color: "bg-green-600" }
+                                { icon: Wheat, title: "Farmer Action", desc: "Apply targeted treatment to improve yield", color: "bg-green-600" }
                             ].map((step, idx) => (
                                 <div key={idx} className="flex-1 flex flex-col items-center text-center px-4 group">
                                     <div className={`w-20 h-20 bg-white border-4 border-white shadow-xl shadow-emerald-100 rounded-2xl flex items-center justify-center mb-8 z-10 transform group-hover:-translate-y-2 transition-transform duration-300 ring-4 ring-emerald-50`}>
@@ -478,7 +556,17 @@ const Login = () => {
                     <div className="container mx-auto px-6 relative z-10">
                         <div className="grid md:grid-cols-2 gap-16 items-center">
                             <div>
-                                <h2 className="text-3xl lg:text-4xl font-bold mb-6">Expert Support for Your Fields</h2>
+                                <SplitText
+                                    text="Expert Support for Your Fields"
+                                    className="text-3xl lg:text-4xl font-bold mb-6"
+                                    delay={50}
+                                    duration={1}
+                                    from={{ opacity: 0, y: 20 }}
+                                    to={{ opacity: 1, y: 0 }}
+                                    ease="circ.out"
+                                    threshold={0.1}
+                                    tag="h2"
+                                />
                                 <p className="text-emerald-200 mb-8 text-lg">
                                     Our team of agricultural technologists is ready to assist you.
                                     Whether you need to schedule a drone survey or need help utilizing the dashboard.
@@ -486,11 +574,11 @@ const Login = () => {
                                 <div className="space-y-4">
                                     <div className="flex items-center space-x-4">
                                         <Mail className="w-6 h-6 text-emerald-400" />
-                                        <span>support@paddyguard.ai</span>
+                                        <span>paddypulse@gmail.com</span>
                                     </div>
                                     <div className="flex items-center space-x-4">
                                         <Phone className="w-6 h-6 text-emerald-400" />
-                                        <span>+91 98765 43210 (Available on request)</span>
+                                        <span>+91 9676261604 (Available on request)</span>
                                     </div>
                                     <div className="flex items-center space-x-4">
                                         <MapPin className="w-6 h-6 text-emerald-400" />
@@ -530,13 +618,13 @@ const Login = () => {
                 <footer className="bg-gray-900 text-gray-400 py-12 border-t border-gray-800">
                     <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
                         <div className="flex items-center space-x-2 mb-4 md:mb-0">
-                            <Leaf className="w-6 h-6 text-emerald-600" />
-                            <span className="text-lg font-bold text-gray-200">Paddy Guard</span>
+                            <Wheat className="w-6 h-6 text-emerald-600" />
+                            <span className="text-lg font-bold text-gray-200">Paddy Pulse</span>
                         </div>
                         <div className="flex space-x-6 text-sm">
                             <span className="hover:text-white cursor-pointer">Privacy Policy</span>
                             <span className="hover:text-white cursor-pointer">Terms of Use</span>
-                            <span>© 2026 Paddy Guard</span>
+                            <span>© 2026 Paddy Pulse</span>
                         </div>
                     </div>
                 </footer>

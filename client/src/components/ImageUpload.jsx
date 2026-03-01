@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 
-const ImageUpload = ({ onAnalysisComplete, farmId, defaultMode = 'upload', allowCamera = true }) => {
+const ImageUpload = ({ onAnalysisComplete, farmId, defaultMode = 'upload', allowCamera = true, title = null }) => {
     const { t } = useTranslation();
     const [file, setFile] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -159,7 +159,10 @@ const ImageUpload = ({ onAnalysisComplete, farmId, defaultMode = 'upload', allow
     return (
         <div className="bg-white p-6 rounded-lg shadow-sm border border-indigo-100 ring-1 ring-indigo-50 mt-6">
             <h3 className="text-lg font-semibold text-indigo-800 mb-4 flex items-center">
-                <span className="mr-2">📸</span> {t('manual_disease_check')}
+                {title
+                    ? <><span className="mr-2">🛸</span>{title}</>
+                    : <><span className="mr-2">📸</span>{t('manual_disease_check')}</>
+                }
             </h3>
 
             {/* Split layout: Grid with 2 columns on medium screens and up if camera allowed */}

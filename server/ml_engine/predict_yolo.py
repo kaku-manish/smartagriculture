@@ -3,11 +3,11 @@ import json
 import os
 from ultralytics import YOLO
 
-# Path to the best trained model
-MODEL_PATH = os.path.join(os.path.dirname(__file__), 'runs/paddy_cls/weights/best.pt')
+# Path to the best trained model (Updated to the 97% accuracy model)
+MODEL_PATH = os.path.join(os.path.dirname(__file__), 'runs/paddy_cls2/weights/best.pt')
 
 # Validation disabled as per user request to avoid blocking uploads
-CONFIDENCE_THRESHOLD = 0.0  
+CONFIDENCE_THRESHOLD = 0.15  # Minimum confidence to list a secondary disease
 
 def predict(img_path):
     if not os.path.exists(MODEL_PATH):
@@ -21,13 +21,23 @@ def predict(img_path):
         
         # Parse results
         result = results[0]
-        top1_index = result.probs.top1
-        top1_conf = float(result.probs.top1conf)
-        class_name = result.names[top1_index]
         
-        # --- VALIDATION DISABLED ---
-        # We now accept ALL predictions, regardless of confidence score.
-        # This ensures the user never gets an upload error.
+        # Get Top-3 Predictions for multi-disease support
+        top3_indices = result.probs.top5[:3]  # Get indices of top 5, take top 3
+        top3_confs = [float(result.probs.data[i]) for i in top3_indices]
+        
+        # Primary disease
+        primary_disease = result.names[top3_indices[0]]
+        primary_conf = top3_confs[0]
+        
+        # Check for secondary/tertiary diseases (if confidence > 15%)
+        detected_diseases = [primary_disease]
+        for i in range(1, len(top3_indices)):
+            if top3_confs[i] >= CONFIDENCE_THRESHOLD:
+                detected_diseases.append(result.names[top3_indices[i]])
+        
+        # Combine names for UI
+        final_disease_name = ", ".join(detected_diseases) if len(detected_diseases) > 1 else primary_disease
         
         # Generate plot/annotation
         import cv2
@@ -43,8 +53,9 @@ def predict(img_path):
         cv2.imwrite(annotated_path, plotted_img)
 
         return {
-            "disease": class_name,
-            "confidence": top1_conf,
+            "disease": final_disease_name,
+            "confidence": primary_conf,
+            "all_detected": detected_diseases,
             "annotated_image": annotated_path
         }
     except Exception as e:

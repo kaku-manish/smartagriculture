@@ -24,8 +24,8 @@ def train():
     
     try:
         results = model.train(
-            data='archive/paddy-disease-classification/train_images', 
-            epochs=5, 
+            data=r'C:\Users\kakum\Desktop\agri project\archive\paddy-disease-classification\train_doc', 
+            epochs=30, 
             imgsz=224,
             project='ml_engine/runs',
             name='paddy_cls'

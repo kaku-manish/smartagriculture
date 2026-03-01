@@ -80,7 +80,7 @@ const FarmersDashboard = () => {
                     <div className="absolute top-0 right-0 w-40 h-40 bg-pink-100 rounded-full blur-3xl opacity-50 -mr-10 -mt-10"></div>
                     <h3 className="text-lg font-bold text-gray-700 flex items-center mb-6 relative z-10">
                         <span className="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center mr-3 text-sm">🔬</span>
-                        Disease Analysis
+                        {t('disease_analysis')}
                     </h3>
 
                     {latest_drone ? (
@@ -96,7 +96,7 @@ const FarmersDashboard = () => {
                                 </div>
 
                                 <div className="flex-1">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">IDENTIFIED DISEASE</p>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{t('identified_disease')}</p>
                                     <div className="flex items-center space-x-2 mb-2">
                                         <span className="text-xl text-red-500">🛡️</span>
                                         <h2 className="text-xl font-black text-gray-800 break-words">
@@ -104,14 +104,14 @@ const FarmersDashboard = () => {
                                         </h2>
                                     </div>
                                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold text-white uppercase ${getSeverityColor(latest_drone.severity)}`}>
-                                        {latest_drone.severity || 'HIGH'} Severity
+                                        {latest_drone.severity || 'HIGH'} {t('severity_suffix')}
                                     </span>
                                 </div>
                             </div>
 
                             <div className="bg-white/60 p-4 rounded-xl border border-white/50 shadow-sm backdrop-blur-sm mt-auto">
                                 <div className="flex justify-between items-center mb-2">
-                                    <span className="text-sm font-bold text-gray-600">AI Confidence {latest_drone.confidence}%</span>
+                                    <span className="text-sm font-bold text-gray-600">{t('ai_confidence_label', { confidence: latest_drone.confidence })}</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style={{ width: `${latest_drone.confidence || 0}%` }}></div>
@@ -130,7 +130,7 @@ const FarmersDashboard = () => {
                 <div className="bg-gradient-to-br from-green-50 to-white rounded-[2rem] p-6 shadow-xl shadow-green-500/5 border border-white/50 relative overflow-hidden">
                     <h3 className="text-lg font-bold text-gray-700 flex items-center mb-6">
                         <span className="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center mr-3 text-sm">💊</span>
-                        Action Plan & Treatment
+                        {t('action_plan')}
                     </h3>
 
                     {recommendation ? (
@@ -138,7 +138,7 @@ const FarmersDashboard = () => {
                             <div className="flex items-center space-x-3">
                                 <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-xs">✓</div>
                                 <div>
-                                    <p className="text-xs font-bold text-gray-500 uppercase">Crop Advice</p>
+                                    <p className="text-xs font-bold text-gray-500 uppercase">{t('crop_advice')}</p>
                                     <p className="font-bold text-gray-800">
                                         {recommendation.crop_suggestion.includes('Recommended:') ?
                                             recommendation.crop_suggestion.split(':')[1] :
@@ -151,13 +151,13 @@ const FarmersDashboard = () => {
                                 <div className="bg-green-500 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-lg shadow-sm shrink-0">+</div>
                                 <div>
                                     <p className="font-black text-gray-800 text-lg leading-tight">{recommendation.medicine_suggestion}</p>
-                                    <p className="text-xs font-medium text-gray-600 mt-1">Dosage: {recommendation.dosage}</p>
+                                    <p className="text-xs font-medium text-gray-600 mt-1">{t('dosage')}: {recommendation.dosage}</p>
                                 </div>
                             </div>
                         </div>
                     ) : (
                         <div className="text-center py-10 opacity-40">
-                            <p className="text-xs font-bold uppercase">No Active Plan</p>
+                            <p className="text-xs font-bold uppercase">{t('no_active_plan')}</p>
                         </div>
                     )}
                 </div>
@@ -166,24 +166,24 @@ const FarmersDashboard = () => {
                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-[2rem] p-6 shadow-xl shadow-blue-500/5 border border-white/50 relative overflow-hidden">
                     <h3 className="text-lg font-bold text-gray-700 flex items-center mb-6">
                         <span className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mr-3 text-sm">🧾</span>
-                        Cost Estimation
+                        {t('cost_estimation')}
                     </h3>
 
                     {costData && costData.hasData ? (
                         <div>
-                            <p className="text-xs font-bold text-gray-500 uppercase mb-2">Estimated Cost:</p>
+                            <p className="text-xs font-bold text-gray-500 uppercase mb-2">{t('estimated_cost_label')}</p>
                             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-500/30 flex justify-between items-center">
                                 <span className="text-3xl font-black tracking-tight">₹{costData.primary.totalMin} - ₹{costData.primary.totalMax}</span>
                             </div>
                             <div className="mt-4 flex justify-end">
                                 <button className="bg-white/50 hover:bg-white text-blue-700 text-xs font-bold py-2 px-4 rounded-lg transition-colors border border-blue-200">
-                                    Estimate Treatment Cost
+                                    {t('estimate_treatment_btn')}
                                 </button>
                             </div>
                         </div>
                     ) : (
                         <div className="text-center py-10 opacity-40">
-                            <p className="text-xs font-bold uppercase">Data Unavailable</p>
+                            <p className="text-xs font-bold uppercase">{t('data_unavailable')}</p>
                         </div>
                     )}
                 </div>

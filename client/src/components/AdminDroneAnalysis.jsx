@@ -88,7 +88,7 @@ const AdminDroneAnalysis = () => {
                             <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.4)]">
                                 <Zap className="w-5 h-5 text-black" />
                             </div>
-                            <span className="text-xl font-black tracking-tighter text-white uppercase italic">Paddy Guard</span>
+                            <span className="text-xl font-black tracking-tighter text-white uppercase italic">Paddy Pulse</span>
                         </div>
                         {/* Status Badge */}
                         <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.1em] border ${isConnected ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'}`}>

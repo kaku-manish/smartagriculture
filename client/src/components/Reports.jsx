@@ -208,7 +208,7 @@ const ReportContent = ({ report }) => {
             <div className="flex justify-between mb-12 border-b border-gray-50 pb-8">
                 <div>
                     <div className="flex items-center space-x-2 text-blue-600 mb-2">
-                        <span className="text-xl font-black italic">SMART AGRI</span>
+                        <span className="text-xl font-black italic">PADDY PULSE</span>
                         <span className="text-[10px] font-bold uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded">Verified Analysis</span>
                     </div>
                     <h1 className="text-3xl font-black text-gray-900 mb-1 uppercase tracking-tight">Field Health Report</h1>
@@ -277,7 +277,7 @@ const ReportContent = ({ report }) => {
             </div>
 
             <div className="mt-20 pt-8 border-t border-gray-50">
-                <p className="text-[10px] text-center font-bold text-gray-300 uppercase tracking-[0.3em]">Smart Agri Automated Analysis Engine • Private & Confidential</p>
+                <p className="text-[10px] text-center font-bold text-gray-300 uppercase tracking-[0.3em]">Paddy Pulse Automated Analysis Engine • Private & Confidential</p>
             </div>
         </div>
     );

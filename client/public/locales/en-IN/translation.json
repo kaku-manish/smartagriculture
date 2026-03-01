@@ -1,5 +1,6 @@
 {
-  "welcome_title": "{{name}}'s Farm",
+  "welcome_title": "{{name}}",
+  "welcome_subtitle": "System intelligence and platform overview.",
   "last_updated": "Last updated",
   "iot_sensors": "IoT Sensors (Real-time)",
   "soil_moisture": "Soil Moisture",
