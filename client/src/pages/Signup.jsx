@@ -64,7 +64,6 @@ const Signup = () => {
             try {
                 const response = await axios.get('https://nominatim.openstreetmap.org/search', {
                     params: { q: query, format: 'json', addressdetails: 1, limit: 5, countrycodes: 'in' },
-                    headers: { 'User-Agent': 'PaddyPulseDashboard/1.0' }
                 });
                 const suggestions = response.data.map(item => ({
                     display_name: item.display_name,
