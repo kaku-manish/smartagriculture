@@ -9,11 +9,11 @@ pyjwt==2.8.0
 passlib[bcrypt]==1.7.4
 requests==2.32.3
 apscheduler==3.11.2
-tensorflow
+tensorflow-cpu
 numpy
 pandas
 pillow
 scikit-learn
 matplotlib
 ultralytics
-opencv-python
+opencv-python-headless
