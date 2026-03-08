@@ -27,6 +27,9 @@ except Exception:
 BASE_DIR = Path(__file__).resolve().parent
 UPLOADS_DIR = BASE_DIR / "uploads"
 
+# Also check the Node.js server uploads directory (sibling folder)
+NODE_UPLOADS_DIR = BASE_DIR.parent / "server" / "uploads"
+
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("agro-backend")
 
@@ -47,7 +50,14 @@ app.add_middleware(
 )
 
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
+
+# Mount the Node.js server/uploads if it exists (contains the actual analyzed images)
+if NODE_UPLOADS_DIR.exists():
+    app.mount("/uploads", StaticFiles(directory=str(NODE_UPLOADS_DIR)), name="uploads")
+    logger.info(f"📁 Serving uploads from Node.js server directory: {NODE_UPLOADS_DIR}")
+else:
+    app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
+    logger.info(f"📁 Serving uploads from Python directory: {UPLOADS_DIR}")
 
 @app.middleware("http")
 async def debug_middleware(request: Request, call_next):
@@ -93,4 +103,6 @@ async def not_found_handler(request: Request, exc):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=3000, reload=True)
+    # Railway passes the port dynamically via the PORT environment variable
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)

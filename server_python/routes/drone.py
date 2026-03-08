@@ -13,6 +13,12 @@ logger = logging.getLogger("agro-backend")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 UPLOADS_DIR = BASE_DIR / "uploads"
+
+# Prefer the shared server/uploads directory (used by Node.js and served by FastAPI)
+_NODE_UPLOADS = BASE_DIR.parent / "server" / "uploads"
+if _NODE_UPLOADS.exists():
+    UPLOADS_DIR = _NODE_UPLOADS
+
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 ML_ENGINE_DIR = BASE_DIR.parent / "server" / "ml_engine"

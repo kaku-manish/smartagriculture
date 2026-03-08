@@ -28,10 +28,27 @@ const DiseaseHistory = ({ farmId }) => {
     // Helper to format image URL for frontend
     const getImageUrl = (path) => {
         if (!path) return null;
+        // If already a full HTTP URL, use as-is
         if (path.startsWith('http')) return path;
+        // Normalise Windows backslashes -> forward slashes
         const cleanPath = path.replace(/\\/g, '/');
+        // Extract just the filename (works for both old and new paths)
         const filename = cleanPath.split('/').pop();
+        if (!filename) return null;
         return `${API_URL}/uploads/${filename}`;
+    };
+
+    // Disease colour map for fallback placeholder
+    const DISEASE_COLORS = {
+        blast: '#ef4444',
+        brown_spot: '#f97316',
+        tungro: '#eab308',
+        default: '#6366f1'
+    };
+
+    const getFallbackBg = (diseaseType) => {
+        const key = Object.keys(DISEASE_COLORS).find(k => diseaseType?.toLowerCase().includes(k));
+        return DISEASE_COLORS[key] || DISEASE_COLORS.default;
     };
 
     if (loading) {
@@ -74,12 +91,24 @@ const DiseaseHistory = ({ farmId }) => {
                                     src={getImageUrl(record.annotated_image_reference || record.image_reference)}
                                     alt={record.disease_type}
                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        const fallback = e.target.parentNode.querySelector('.img-fallback');
+                                        if (fallback) fallback.style.display = 'flex';
+                                    }}
                                 />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50">
-                                    <span className="text-2xl">No Image</span>
-                                </div>
-                            )}
+                            ) : null}
+                            <div
+                                className="img-fallback w-full h-full flex-col items-center justify-center text-white"
+                                style={{
+                                    display: (record.annotated_image_reference || record.image_reference) ? 'none' : 'flex',
+                                    background: `linear-gradient(135deg, ${getFallbackBg(record.disease_type)}cc, ${getFallbackBg(record.disease_type)}88)`
+                                }}
+                            >
+                                <span className="text-4xl mb-2">🌿</span>
+                                <span className="text-sm font-semibold capitalize">{record.disease_type?.replace(/_/g, ' ')}</span>
+                            </div>
+
                             <div className="absolute top-2 right-2">
                                 <span className={`px-2 py-1 rounded text-xs font-bold uppercase shadow-sm ${record.severity === 'HIGH' ? 'bg-red-500 text-white' :
                                     record.severity === 'MEDIUM' ? 'bg-orange-500 text-white' : 'bg-green-500 text-white'

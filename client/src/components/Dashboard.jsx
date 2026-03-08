@@ -197,6 +197,7 @@ const Dashboard = () => {
             case 'Disease Analysis':
             case 'Manual Disease Check':
                 return <div className="max-w-4xl mx-auto"><ImageUpload farmId={farmId} onAnalysisComplete={handleAnalysisComplete} allowCamera={false} /></div>;
+            case 'Live Camera Check':
             case 'Start Live Camera':
                 return <div className="max-w-4xl mx-auto"><ImageUpload farmId={farmId} onAnalysisComplete={handleAnalysisComplete} defaultMode="camera" /></div>;
             case 'Action Plan & Treatments':
