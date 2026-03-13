@@ -21,11 +21,13 @@ _pg_conn = None
 _sqlite_conn = None
 
 
+_pg_dsn = None
+
 def _init_connections() -> None:
-    global _pg_conn, _sqlite_conn
+    global _pg_dsn, _sqlite_conn
 
     if IS_CLOUD:
-        logger.info("📡 Database: Using Cloud PostgreSQL (Supabase)")
+        logger.info("📡 Database: Using Cloud PostgreSQL (Supabase) - Lazy Connection")
         if psycopg is None:
             raise RuntimeError(
                 "DATABASE_URL is set but psycopg is not installed. Install psycopg or unset DATABASE_URL."
@@ -36,20 +38,15 @@ def _init_connections() -> None:
             sep = "&" if "?" in dsn else "?"
             dsn = f"{dsn}{sep}sslmode=require"
 
-        _pg_conn = psycopg.connect(dsn)
-        _pg_conn.autocommit = True
+        _pg_dsn = dsn
     else:
         logger.info("🏠 Database: Using Local SQLite (agriculture.db)")
-        # We point it to the agriculture.db in the original server directory
-        # so we share the same database while transitioning.
-        # Prefer server_python/agriculture.db first (local dev DB)
         original_db_path = BASE_DIR / "agriculture.db"
         if not original_db_path.exists():
             original_db_path = BASE_DIR.parent / "server" / "agriculture.db"  # fallback
             
         _sqlite_conn = sqlite3.connect(str(original_db_path), check_same_thread=False)
         _sqlite_conn.row_factory = sqlite3.Row
-
 
 _init_connections()
 
@@ -73,8 +70,18 @@ def _should_add_returning(sql: str) -> bool:
 
 
 def _process_query_pg(sql: str, params: Sequence[Any] = (), is_mutation: bool = False) -> Tuple[List[Dict[str, Any]], int]:
-    if _pg_conn is None:
-        raise RuntimeError("PostgreSQL connection not initialized")
+    global _pg_conn
+    if _pg_dsn is None:
+        raise RuntimeError("PostgreSQL DSN not initialized")
+
+    try:
+        if _pg_conn is None or _pg_conn.closed:
+            logger.info("📡 Connecting to Supabase PostgreSQL...")
+            _pg_conn = psycopg.connect(_pg_dsn)
+            _pg_conn.autocommit = True
+    except Exception as e:
+        logger.error(f"Failed to connect to Supabase PostgreSQL: {e}")
+        raise RuntimeError(f"Database connection failed: {e}")
 
     clean_sql = sql.strip()
     clean_sql = _convert_qmarks_to_pg(clean_sql)
