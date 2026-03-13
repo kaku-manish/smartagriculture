@@ -22,7 +22,10 @@ if _NODE_UPLOADS.exists():
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 ML_ENGINE_DIR = BASE_DIR.parent / "server" / "ml_engine"
-MODEL_PATH = str(ML_ENGINE_DIR / "runs" / "paddy_cls2" / "weights" / "best.pt")
+# Fallback to paddy_cls since paddy_cls2 is not tracked in git for production
+_model_path_1 = ML_ENGINE_DIR / "runs" / "paddy_cls2" / "weights" / "best.pt"
+_model_path_2 = ML_ENGINE_DIR / "runs" / "paddy_cls" / "weights" / "best.pt"
+MODEL_PATH = str(_model_path_1 if _model_path_1.exists() else _model_path_2)
 
 # ── Load ML model once at startup (in-process, no subprocess) ─────────────────
 _yolo_model = None
