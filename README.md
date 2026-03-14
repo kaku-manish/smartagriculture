@@ -37,10 +37,9 @@ Paddy-Pulse/
 ├── client/                 # Frontend React Application
 │   ├── src/components/     # UI Components (Dashboard, IoT, AI Upload)
 │   ├── src/locales/        # Translation files (En/Te)
-├── server_python/          # Fast & Robust Python Backend (FastAPI)
+├── server/                 # Fast & Robust Python Backend (FastAPI)
 │   ├── ml_engine/          # Python AI scripts and YOLOv8 Weights
 │   ├── routes/             # API Endpoints (Auth, Drone, Farm, Geo)
-└── server/                 # Legacy/Hybrid Node APIs & Integrations
 ```
 
 ---
@@ -57,7 +56,7 @@ npm run dev
 ### 2. Backend (Python/FastAPI)
 Ensure you have Python 3.10+ installed.
 ```bash
-cd server_python
+cd server
 python -m venv venv
 
 # Windows

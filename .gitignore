@@ -43,7 +43,6 @@ __pycache__/
 
 # Uploads (user-submitted images / generated reports)
 server/uploads/
-server_python/uploads/
 
 # SQLite database binaries
 *.db
@@ -52,6 +51,5 @@ server_python/uploads/
 
 # ML model runs / weights
 server/ml_engine/runs/
-server_python/ml_engine/runs/
 *.pt
 *.weights

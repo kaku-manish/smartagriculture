@@ -7,7 +7,7 @@ echo   PaddyPulse AI - Backend Server (Port 3000)
 echo  ============================================
 echo.
 
-cd /d "%~dp0server_python"
+cd /d "%~dp0server"
 
 IF NOT EXIST "venv\Scripts\python.exe" (
     echo [ERROR] venv not found! Run: python -m venv venv ^& venv\Scripts\pip install -r requirements.txt
